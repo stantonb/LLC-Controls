@@ -1,4 +1,5 @@
-var cookie = "";
+//get cooking from env
+var cookie = process.env.COOKIE;
 
 async function main(){
 	var walletInfo = await getWalletInfo();
@@ -37,6 +38,6 @@ async function getWalletInfo(){
 }
 
 async function getProfite(firm){
-	return 0;
+	return 1;
 }
 main();
