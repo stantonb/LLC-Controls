@@ -84,13 +84,15 @@ async function getProfit(firm, marketInfo){
 			return 0;
 		}
 
+		//check recipe if factory
 		switch (firmType) {
 			case "factorysmall":
+				let recipe = input[recipe];
 				break;
 			default:
 				break;
 		}
-		
+
 		firmProfit += input * marketInputPrice;
 	}
 
