@@ -84,6 +84,13 @@ async function getProfit(firm, marketInfo){
 			return 0;
 		}
 
+		switch (firmType) {
+			case "factorysmall":
+				break;
+			default:
+				break;
+		}
+		
 		firmProfit += input * marketInputPrice;
 	}
 
