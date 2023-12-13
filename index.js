@@ -1,4 +1,5 @@
-//get cooking from env
+import "dotenv/config.js";
+
 var cookie = process.env.COOKIE;
 
 async function main(){
@@ -9,8 +10,13 @@ async function main(){
 }
 
 async function getProfitableFirms(walletInfo){
-	var firms = walletInfo.resp.firms;
+	var firms = walletInfo?.resp?.firms;
 	var profitableFirms = [];
+
+	if (!firms) {
+		console.log('No firms found');
+		return profitableFirms;
+	}
 
 	for (let firm of firms) {
 		let firmProfit = await getProfite(firm);
