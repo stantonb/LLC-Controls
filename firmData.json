@@ -1,0 +1,27 @@
+{
+	"windturbine": {
+		"inputs": {
+			"labour": -1
+		},
+		"outputs": {
+			"energy": 200
+		}
+	},
+	"minesmall": {
+		"inputs": {
+			"labour": -1
+		},
+		"outputs": {
+			"iron": 1
+		}
+	},
+	"factorysmall": {
+		"inputs": {
+			"labour": -1,
+			"iron": -1
+		},
+		"outputs": {
+			"goods": 1
+		}
+	}
+}
