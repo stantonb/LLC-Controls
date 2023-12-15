@@ -7,12 +7,22 @@ async function main(){
 	let walletInfo = await getWalletInfo();
 	
 	let firms = await getProfitableFirms(walletInfo);
-	// console.log(firms);
+
+	for (let firm of firms.profitableFirms) {
+		turnFirmOn(firm);
+	}
+
+	for (let firm of firms.unprofitableFirms) {
+		turnFirmsOff(firm);
+	}
+
+
 }
 
 async function getProfitableFirms(walletInfo){
 	let firms = walletInfo?.resp?.firms.filter(firm => firm?.type !== undefined);
 	let profitableFirms = [];
+	let unprofitableFirms = [];
 	let marketInfo = await getMarketInfo();
 
 	if (!firms || firms.length == 0 || !marketInfo || marketInfo.length == 0) {
@@ -25,10 +35,15 @@ async function getProfitableFirms(walletInfo){
 
 		if (firmProfit > 0) {
 			profitableFirms.push(firm);
+		} else {
+			unprofitableFirms.push(firm);
 		}
 	}
 
-	return profitableFirms;
+	return {
+		profitableFirms: profitableFirms,
+		unprofitableFirms: unprofitableFirms
+	};
 }
 
 async function getWalletInfo(){
@@ -62,8 +77,6 @@ async function getMarketInfo(){
 }
 
 async function getProfit(firm, marketInfo){
-	console.log(firm);
-
 	let firmType = firm.type;
 	let firmInputs = firmData[firmType]?.inputs;
 	let firmOutputs = firmData[firmType]?.outputs;
@@ -99,10 +112,6 @@ async function getProfit(firm, marketInfo){
 	//loop through outputs and get market price
 	for(let key in firmOutputs){
 		let output = firmOutputs[key];
-
-		// console.log('Key: ' + key);
-		// console.log(marketInfo?.resp[key]);
-
 		let marketOutputPrice = marketInfo?.resp[key][0]/100;
 
 		if (!output || !marketOutputPrice) {
@@ -116,6 +125,38 @@ async function getProfit(firm, marketInfo){
 	console.log(firmType + ' profit: ' + firmProfit);
 
 	return firmProfit;
+}
+
+async function turnFirmOn(firm){
+	var myHeaders = new Headers();
+	myHeaders.append("Cookie", cookie);
+
+	var requestOptions = {
+		method: 'GET',
+		headers: myHeaders,
+		redirect: 'follow'
+	};
+
+	const response = await fetch(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=0`, requestOptions);
+	console.log(firm.name + ' turned on');
+	return response.json();
+
+}
+
+async function turnFirmsOff(firm){
+	var myHeaders = new Headers();
+	myHeaders.append("Cookie", cookie);
+
+	var requestOptions = {
+		method: 'GET',
+		headers: myHeaders,
+		redirect: 'follow'
+	};
+
+	const response = await fetch(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=1`, requestOptions);
+
+	console.log(firm.name + ' turned off');
+	return response.json();
 }
 
 main();
