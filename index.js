@@ -1,7 +1,7 @@
 import "dotenv/config.js";
 import firmData from "./firmData.json"  with { type: "json" };
 
-var cookie = process.env.COOKIE;
+let cookie = process.env.COOKIE;
 
 async function main(){
 	let walletInfo = await getWalletInfo();
@@ -9,14 +9,12 @@ async function main(){
 	let firms = await getProfitableFirms(walletInfo);
 
 	for (let firm of firms.profitableFirms) {
-		turnFirmOn(firm);
+		toggleFirmStatus(firm, 'opened');
 	}
 
 	for (let firm of firms.unprofitableFirms) {
-		turnFirmsOff(firm);
+		toggleFirmStatus(firm, 'closed');
 	}
-
-
 }
 
 async function getProfitableFirms(walletInfo){
@@ -47,10 +45,10 @@ async function getProfitableFirms(walletInfo){
 }
 
 async function getWalletInfo(){
-	var myHeaders = new Headers();
+	let myHeaders = new Headers();
 	myHeaders.append("Cookie", cookie);
 
-	var requestOptions = {
+	let requestOptions = {
 		method: 'GET',
 		headers: myHeaders,
 		redirect: 'follow'
@@ -62,10 +60,10 @@ async function getWalletInfo(){
 }
 
 async function getMarketInfo(){
-	var myHeaders = new Headers();
+	let myHeaders = new Headers();
 	myHeaders.append("Cookie", cookie);
 	
-	var requestOptions = {
+	let requestOptions = {
 		method: 'GET',
 		headers: myHeaders,
 		redirect: 'follow'
@@ -127,36 +125,21 @@ async function getProfit(firm, marketInfo){
 	return firmProfit;
 }
 
-async function turnFirmOn(firm){
-	var myHeaders = new Headers();
+async function toggleFirmStatus(firm, status){
+	let myHeaders = new Headers();
+	let closed = status == 'closed' ? 1 : 0;
 	myHeaders.append("Cookie", cookie);
 
-	var requestOptions = {
+	let requestOptions = {
 		method: 'GET',
 		headers: myHeaders,
 		redirect: 'follow'
 	};
 
-	const response = await fetch(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=0`, requestOptions);
-	console.log(firm.name + ' turned on');
+	const response = await fetch(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=${closed}`, requestOptions);
+	console.log(firm.name + ' was ' + status);
 	return response.json();
 
-}
-
-async function turnFirmsOff(firm){
-	var myHeaders = new Headers();
-	myHeaders.append("Cookie", cookie);
-
-	var requestOptions = {
-		method: 'GET',
-		headers: myHeaders,
-		redirect: 'follow'
-	};
-
-	const response = await fetch(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=1`, requestOptions);
-
-	console.log(firm.name + ' turned off');
-	return response.json();
 }
 
 main();
