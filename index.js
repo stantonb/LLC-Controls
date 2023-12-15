@@ -76,8 +76,10 @@ async function getMarketInfo(){
 
 async function getProfit(firm, marketInfo){
 	let firmType = firm.type;
-	let firmInputs = firmData[firmType]?.inputs;
-	let firmOutputs = firmData[firmType]?.outputs;
+	let recipe = firm.data?.recipe;
+
+	let firmInputs = firmData[firmType]?.inputs || firmData[firmType][recipe]?.inputs;
+	let firmOutputs = firmData[firmType]?.outputs || firmData[firmType][recipe]?.outputs;
 	let firmProfit = 0;
 
 	if (!firmInputs || !firmOutputs) {
@@ -93,15 +95,6 @@ async function getProfit(firm, marketInfo){
 		if (!input || !marketInputPrice) {
 			console.log('No market input found for ' + input?.type);
 			return 0;
-		}
-
-		//check recipe if factory
-		switch (firmType) {
-			case "factorysmall":
-				let recipe = input[recipe];
-				break;
-			default:
-				break;
 		}
 
 		firmProfit += input * marketInputPrice;
@@ -120,25 +113,25 @@ async function getProfit(firm, marketInfo){
 		firmProfit += output * marketOutputPrice;
 	}
 	
-	console.log(firmType + ' profit: ' + firmProfit);
+	console.log(firmType + ' ' + (recipe ? recipe + ' ' : '') + 'profit: ' + firmProfit);
 
 	return firmProfit;
 }
 
 async function toggleFirmStatus(firm, status){
-	let myHeaders = new Headers();
-	let closed = status == 'closed' ? 1 : 0;
-	myHeaders.append("Cookie", cookie);
+	// let myHeaders = new Headers();
+	// let closed = status == 'closed' ? 1 : 0;
+	// myHeaders.append("Cookie", cookie);
 
-	let requestOptions = {
-		method: 'GET',
-		headers: myHeaders,
-		redirect: 'follow'
-	};
+	// let requestOptions = {
+	// 	method: 'GET',
+	// 	headers: myHeaders,
+	// 	redirect: 'follow'
+	// };
 
-	const response = await fetch(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=${closed}`, requestOptions);
+	// const response = await fetch(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=${closed}`, requestOptions);
 	console.log(firm.name + ' was ' + status);
-	return response.json();
+	// return response.json();
 
 }
 
