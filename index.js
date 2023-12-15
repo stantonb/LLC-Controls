@@ -77,7 +77,6 @@ async function getMarketInfo(){
 async function getProfit(firm, marketInfo){
 	let firmType = firm.type;
 	let recipe = firm.data?.recipe;
-
 	let firmInputs = firmData[firmType]?.inputs || firmData[firmType][recipe]?.inputs;
 	let firmOutputs = firmData[firmType]?.outputs || firmData[firmType][recipe]?.outputs;
 	let firmProfit = 0;
@@ -119,20 +118,26 @@ async function getProfit(firm, marketInfo){
 }
 
 async function toggleFirmStatus(firm, status){
-	// let myHeaders = new Headers();
-	// let closed = status == 'closed' ? 1 : 0;
-	// myHeaders.append("Cookie", cookie);
+	let shouldClose = status == 'closed' ? 1 : 0;
 
-	// let requestOptions = {
-	// 	method: 'GET',
-	// 	headers: myHeaders,
-	// 	redirect: 'follow'
-	// };
+	if (firm.closed == shouldClose){
+		console.log(firm.name + ' is already ' + status);
+		return;
+	}
 
-	// const response = await fetch(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=${closed}`, requestOptions);
+	let myHeaders = new Headers();
+	myHeaders.append("Cookie", cookie);
+
+	let requestOptions = {
+		method: 'GET',
+		headers: myHeaders,
+		redirect: 'follow'
+	};
+
+	const response = await fetch(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=${shouldClose}`, requestOptions);
+	
 	console.log(firm.name + ' was ' + status);
-	// return response.json();
-
+	return response.json();
 }
 
 main();
