@@ -47,6 +47,39 @@
 			"outputs": {
 				"glass": 20
 			}
+		},
+		"flour": {
+			"inputs": {
+				"electricity": 120,
+				"labor": 3,
+				"wheat": 3
+			},
+			"outputs": {
+				"flour": 120
+			}
+		},
+		"bread": {
+			"inputs": {
+				"electricity": 240,
+				"labor": 3,
+				"flour": 120,
+				"minerals": 30
+			},
+			"outputs": {
+				"bread": 120
+			}
+		},
+		"cola": {
+			"inputs": {
+				"electricity": 240,
+				"labor": 3,
+				"sugar": 150,
+				"minerals": 30,
+				"aluminum": 30
+			},
+			"outputs": {
+				"cola": 450
+			}
 		}
 	}
 }
