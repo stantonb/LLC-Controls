@@ -28,6 +28,9 @@ async function getProfitableFirms(walletInfo){
 		return profitableFirms;
 	}
 
+	//sort firms by type
+	firms.sort((a, b) => (a.type > b.type) ? 1 : -1);
+
 	for (let firm of firms) {
 		let firmProfit = await getProfit(firm, marketInfo);
 
@@ -37,6 +40,8 @@ async function getProfitableFirms(walletInfo){
 			unprofitableFirms.push(firm);
 		}
 	}
+
+	console.log('-----------------------------------');
 
 	return {
 		profitableFirms: profitableFirms,
@@ -80,23 +85,12 @@ async function getProfit(firm, marketInfo){
 	let firmInputs = firmData[firmType]?.inputs || firmData[firmType][recipe]?.inputs;
 	let firmOutputs = firmData[firmType]?.outputs || firmData[firmType][recipe]?.outputs;
 	let firmProfit = 0;
+	let firmOutputTotal = 0;
+	let firminputTotal = 0;
 
 	if (!firmInputs || !firmOutputs) {
 		console.log('No inputs or outputs found for ' + firmType);
 		return 0;
-	}
-
-	//loop through inputs and get market price
-	for(let key in firmInputs){
-		let input = firmInputs[key];
-		let marketInputPrice = marketInfo?.resp[key][0]/100;
-
-		if (!input || !marketInputPrice) {
-			console.log('No market input found for ' + input?.type);
-			return 0;
-		}
-
-		firmProfit += input * marketInputPrice;
 	}
 
 	//loop through outputs and get market price
@@ -109,9 +103,27 @@ async function getProfit(firm, marketInfo){
 			return 0;
 		}
 
-		firmProfit += output * marketOutputPrice;
+		firmOutputTotal += output * marketOutputPrice;
 	}
-	
+
+	//loop through inputs and get market price
+	for(let key in firmInputs){
+		let input = firmInputs[key];
+		let marketInputPrice = marketInfo?.resp[key][0]/100;
+
+		if (!input || !marketInputPrice) {
+			console.log('No market input found for ' + input?.type);
+			return 0;
+		}
+
+		firminputTotal += input * marketInputPrice;
+	}
+
+	firmProfit = firmOutputTotal - firminputTotal;
+
+	//tax on output
+	firmProfit -= firmOutputTotal * 0.05;
+
 	console.log(firmType + ' ' + (recipe ? recipe + ' ' : '') + 'profit: ' + firmProfit);
 
 	return firmProfit;

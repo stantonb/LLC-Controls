@@ -1,7 +1,7 @@
 {
 	"windturbine": {
 		"inputs": {
-			"labor": -1
+			"labor": 1
 		},
 		"outputs": {
 			"electricity": 200
@@ -9,8 +9,8 @@
 	},
 	"minesmall": {
 		"inputs": {
-			"electricity": -120,
-			"labor": -3
+			"electricity": 120,
+			"labor": 3
 		},
 		"outputs": {
 			"minerals": 18
@@ -19,10 +19,10 @@
 	"factorysmall": {
 		"steel" :{
 			"inputs": {
-				"electricity": -120,
-				"labor": -3,
-				"iron": -150,
-				"coal": -300
+				"electricity": 120,
+				"labor": 3,
+				"iron": 150,
+				"coal": 300
 			},
 			"outputs": {
 				"steel": 150
@@ -30,12 +30,22 @@
 		},
 		"concrete": {
 			"inputs": {
-				"electricity": -120,
-				"labor": -3,
-				"stone": -3
+				"electricity": 120,
+				"labor": 3,
+				"stone": 3
 			},
 			"outputs": {
 				"concrete": 3
+			}
+		},
+		"glass": {
+			"inputs": {
+				"electricity": 120,
+				"labor": 3,
+				"minerals": 20
+			},
+			"outputs": {
+				"glass": 20
 			}
 		}
 	}
