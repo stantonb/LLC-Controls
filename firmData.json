@@ -5,7 +5,8 @@
 		},
 		"outputs": {
 			"electricity": 200
-		}
+		},
+		"tax": 0
 	},
 	"minesmall": {
 		"inputs": {
@@ -14,7 +15,19 @@
 		},
 		"outputs": {
 			"minerals": 18
-		}
+		},
+		"tax": 0.05
+	},
+	"supermarket": {
+		"inputs": {
+			"electricity": 300,
+			"labor_manager": 1,
+			"labor": 0
+		},
+		"outputs": {
+			"Retail1": 1
+		},
+		"tax": 5
 	},
 	"factorysmall": {
 		"steel" :{
@@ -26,7 +39,8 @@
 			},
 			"outputs": {
 				"steel": 150
-			}
+			},
+			"tax": 0.05
 		},
 		"concrete": {
 			"inputs": {
@@ -36,7 +50,8 @@
 			},
 			"outputs": {
 				"concrete": 3
-			}
+			},
+			"tax": 0.05
 		},
 		"glass": {
 			"inputs": {
@@ -46,7 +61,8 @@
 			},
 			"outputs": {
 				"glass": 20
-			}
+			},
+			"tax": 0.05
 		},
 		"flour": {
 			"inputs": {
@@ -56,7 +72,8 @@
 			},
 			"outputs": {
 				"flour": 120
-			}
+			},
+			"tax": 0.05
 		},
 		"bread": {
 			"inputs": {
@@ -67,7 +84,8 @@
 			},
 			"outputs": {
 				"bread": 120
-			}
+			},
+			"tax": 0.05
 		},
 		"cola": {
 			"inputs": {
@@ -79,7 +97,8 @@
 			},
 			"outputs": {
 				"cola": 450
-			}
+			},
+			"tax": 0.05
 		}
 	}
 }

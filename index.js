@@ -32,6 +32,11 @@ async function getProfitableFirms(walletInfo){
 	firms.sort((a, b) => (a.type > b.type) ? 1 : -1);
 
 	for (let firm of firms) {
+		if(firm.type == 'supermarket') {
+			console.log('Skipping supermarket');
+			continue;
+		}
+
 		let firmProfit = await getProfit(firm, marketInfo);
 
 		if (firmProfit > 0) {
@@ -40,8 +45,6 @@ async function getProfitableFirms(walletInfo){
 			unprofitableFirms.push(firm);
 		}
 	}
-
-	console.log('-----------------------------------');
 
 	return {
 		profitableFirms: profitableFirms,
@@ -84,6 +87,7 @@ async function getProfit(firm, marketInfo){
 	let recipe = firm.data?.recipe;
 	let firmInputs = firmData[firmType]?.inputs || firmData[firmType][recipe]?.inputs;
 	let firmOutputs = firmData[firmType]?.outputs || firmData[firmType][recipe]?.outputs;
+	let firmTax = firmData[firmType]?.tax || firmData[firmType][recipe]?.tax;
 	let firmProfit = 0;
 	let firmOutputTotal = 0;
 	let firminputTotal = 0;
@@ -122,7 +126,7 @@ async function getProfit(firm, marketInfo){
 	firmProfit = firmOutputTotal - firminputTotal;
 
 	//tax on output
-	firmProfit -= firmOutputTotal * 0.05;
+	firmProfit -= firmTax > 0 ? firmOutputTotal * firmTax : firmOutputTotal;
 
 	console.log(firmType + ' ' + (recipe ? recipe + ' ' : '') + 'profit: ' + firmProfit);
 
