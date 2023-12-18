@@ -87,7 +87,7 @@ async function getProfit(firm, marketInfo){
 	let recipe = firm.data?.recipe;
 	let firmInputs = firmData[firmType]?.inputs || firmData[firmType][recipe]?.inputs;
 	let firmOutputs = firmData[firmType]?.outputs || firmData[firmType][recipe]?.outputs;
-	let firmTax = firmData[firmType]?.tax || firmData[firmType][recipe]?.tax;
+	let firmTax = firmData[firmType]?.tax || firmData[firmType][recipe]?.tax || 0;
 	let firmProfit = 0;
 	let firmOutputTotal = 0;
 	let firminputTotal = 0;
@@ -123,10 +123,7 @@ async function getProfit(firm, marketInfo){
 		firminputTotal += input * marketInputPrice;
 	}
 
-	firmProfit = firmOutputTotal - firminputTotal;
-
-	//tax on output
-	firmProfit -= firmTax > 0 ? firmOutputTotal * firmTax : firmOutputTotal;
+	firmProfit = firmOutputTotal - firminputTotal - firmTax;
 
 	console.log(firmType + ' ' + (recipe ? recipe + ' ' : '') + 'profit: ' + firmProfit);
 
