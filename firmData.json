@@ -22,12 +22,24 @@
 		"inputs": {
 			"electricity": 300,
 			"labor_manager": 1,
-			"labor": 0
+			"labor": 20
 		},
 		"outputs": {
 			"Retail1": 1
 		},
 		"tax": 5
+	},
+	"apartmentsmall": {
+		"inputs": {
+			"electricity": 200,
+			"labor": 5,
+			"labor_manager": 1
+		},
+		"outputs": {
+			"rental_sqft": 10000,
+			"rental_lux": 2500
+		},
+		"tax": 1
 	},
 	"factorysmall": {
 		"steel" :{
