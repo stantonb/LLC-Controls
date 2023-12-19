@@ -6,16 +6,23 @@ let cookie = process.env.COOKIE;
 
 async function main(){
 	let walletInfo = await getWalletInfo();
+	var totalProfitPerHour = 0;
 	
 	let firms = await getProfitableFirms(walletInfo);
+	
+	console.log("------------------------------------------")
 
 	for (let firm of firms.profitableFirms) {
+		totalProfitPerHour += firm.profit;
 		toggleFirmStatus(firm, 'opened');
 	}
 
 	for (let firm of firms.unprofitableFirms) {
 		toggleFirmStatus(firm, 'closed');
 	}
+
+	console.log("------------------------------------------")
+	console.log(`Hourly Profit: ${totalProfitPerHour}`);
 }
 
 async function getProfitableFirms(walletInfo){
@@ -38,9 +45,9 @@ async function getProfitableFirms(walletInfo){
 			continue;
 		}
 
-		let firmProfit = await getProfit(firm, marketInfo);
+		firm.profit = await getProfit(firm, marketInfo);
 
-		if (firmProfit > 0) {
+		if (firm.profit > 0) {
 			profitableFirms.push(firm);
 		} else {
 			unprofitableFirms.push(firm);
@@ -167,3 +174,8 @@ main();
 // if profit is -ve I want to check if it within 5% of historical average
 	//if so I want to turn firm on but turn off selling
 	//if outside 5% I want to stop firm
+
+
+//TODO
+//apartments run at -ve profit most of the time but increase foot traffic to superMarkets, so need to check supermarket profit is > than total apartments -ve
+
