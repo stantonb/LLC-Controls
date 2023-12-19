@@ -1,6 +1,6 @@
 import "dotenv/config.js";
 import firmData from "./firmData.json"  with { type: "json" };
-import stockpilingControls from "./stockPileControls.json"  with { type: "json" };
+// import stockpilingControls from "./stockPileControls.json"  with { type: "json" };
 
 let cookie = process.env.COOKIE;
 
@@ -100,10 +100,10 @@ async function getProfit(firm, marketInfo) {
 
 	//loop through outputs and get market price
 	for(let key in firmOutputs){
-		if (stockpilingControls[key]) {
-			console.log('Skipping ' + key + ' because we want to stockpile it');
-			return 1; //positive number so it doesn't get closed
-		}
+		// if (stockpilingControls[key]) {
+		// 	console.log('Skipping ' + key + ' because we want to stockpile it');
+		// 	return 1; //positive number so it doesn't get closed
+		// }
 
 		let output = firmOutputs[key];
 		let marketOutputPrice = marketInfo?.resp[key][0]/100;

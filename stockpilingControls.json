@@ -1,0 +1,21 @@
+{
+	"labor": false,
+	"labor_manager": false,
+	"rental_sqft": false,
+	"rental_lux": false,
+	"electricity": false,
+	"minerals": false,
+	"Retail": false,
+	"iron": false,
+	"coal": false,
+	"steel": false,
+	"stone": false,
+	"concrete": false,
+	"glass": false,
+	"wheat": false,
+	"flour": false,
+	"bread": false,
+	"sugar": false,
+	"aluminum": false,
+	"cola": false
+}
