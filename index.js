@@ -8,6 +8,10 @@ async function main(){
 	let walletInfo = await getWalletInfo();
 	var totalProfitPerHour = 0;
 	
+	if(!walletInfo){
+		
+	}
+
 	let firms = await getProfitableFirms(walletInfo);
 	
 	console.log("------------------------------------------")
@@ -15,6 +19,9 @@ async function main(){
 	for (let firm of firms.profitableFirms) {
 		totalProfitPerHour += firm.profit;
 		toggleFirmStatus(firm, 'opened');
+
+		//if stockpile is true then we want to set selling off
+		// else selling is not on already we want to turn it on
 	}
 
 	for (let firm of firms.unprofitableFirms) {
@@ -107,10 +114,6 @@ async function getProfit(firm, marketInfo) {
 
 	//loop through outputs and get market price
 	for(let key in firmOutputs){
-		// if (stockpilingControls[key]) {
-		// 	console.log('Skipping ' + key + ' because we want to stockpile it');
-		// 	return 1; //positive number so it doesn't get closed
-		// }
 
 		let output = firmOutputs[key];
 		let marketOutputPrice = marketInfo?.resp[key][0]/100;
