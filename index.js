@@ -1,6 +1,6 @@
 import "dotenv/config.js";
 import firmData from "./firmData.json"  with { type: "json" };
-// import stockpilingControls from "./stockPileControls.json"  with { type: "json" };
+import stockpilingControls from "./stockPileControls.json"  with { type: "json" };
 
 let cookie = process.env.COOKIE;
 
@@ -160,3 +160,10 @@ async function toggleFirmStatus(firm, status){
 }
 
 main();
+
+
+// I want to check historical data for all resources
+// if profit is +ve right now I want to sell
+// if profit is -ve I want to check if it within 5% of historical average
+	//if so I want to turn firm on but turn off selling
+	//if outside 5% I want to stop firm
