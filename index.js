@@ -7,7 +7,7 @@ let cookie = process.env.COOKIE;
 async function main(){
 	let walletInfo = await getWalletInfo();
 	var totalProfitPerHour = 0;
-	
+
 	if(!walletInfo){
 		
 	}
@@ -30,6 +30,13 @@ async function main(){
 
 	console.log("------------------------------------------")
 	console.log(`Hourly Profit: ${totalProfitPerHour}`);
+	console.log("------------------------------------------")
+
+	let averageDividends = await calculateAverageDividends();
+
+	console.log("------------------------------------------")
+	console.log(`Average Dividends: ${averageDividends}`);
+	console.log("------------------------------------------")
 }
 
 async function getProfitableFirms(walletInfo){
@@ -169,7 +176,33 @@ async function toggleFirmStatus(firm, status){
 	return response.json();
 }
 
+async function getDividends(){
+	let myHeaders = new Headers();
+	myHeaders.append("Cookie", cookie);
+
+	var requestOptions = {
+		method: 'GET',
+		redirect: 'follow'
+	};
+	
+	const response = await fetch("https://llcgame.io/rpc/markets/getMarketDetails?goodname=share_LQV", requestOptions)
+
+	return response.json();
+}
+
+async function calculateAverageDividends(){
+	let allDividends = await getDividends();
+	let totalDividends = 0;
+
+	for(let dividend of allDividends.resp.tickHistory){
+		totalDividends = totalDividends + (dividend?.data?.dividend ?? 0);
+	}
+
+	return totalDividends/allDividends.resp.tickHistory.length/100;
+}
+
 main();
+
 
 
 // I want to check historical data for all resources
