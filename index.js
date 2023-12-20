@@ -8,8 +8,9 @@ async function main(){
 	let walletInfo = await getWalletInfo();
 	var totalProfitPerHour = 0;
 
-	if(!walletInfo){
-		
+	if (!walletInfo) {
+		console.log('No wallet info found');
+		return;
 	}
 
 	let firms = await getProfitableFirms(walletInfo);
@@ -50,8 +51,8 @@ async function getProfitableFirms(walletInfo){
 		return profitableFirms;
 	}
 
-	//sort firms by type
-	firms.sort((a, b) => (a.type > b.type) ? 1 : -1);
+	//sort by type then recipe
+	firms = await sortFirms(firms);
 
 	for (let firm of firms) {
 		if(firm.type == 'supermarket') {
@@ -59,7 +60,7 @@ async function getProfitableFirms(walletInfo){
 			continue;
 		}
 
-		firm.profit = await getProfit(firm, marketInfo);
+		firm.profit = await calculateProfit(firm, marketInfo);
 
 		if (firm.profit > 0) {
 			profitableFirms.push(firm);
@@ -84,7 +85,13 @@ async function getWalletInfo(){
 		redirect: 'follow'
 	};
 
-	const response = await fetch("https://llcgame.io/rpc/authaccounts/getWalletInfo?", requestOptions)
+	const response = await fetch("https://llcgame.io/rpc/authaccounts/getWalletInfo?", requestOptions);
+
+	//handle error response
+	if (!response.ok) {
+		console.log('Error getting wallet info, Cookie probably expired');
+		return null;
+	}
 
 	return response.json();
 }
@@ -104,7 +111,7 @@ async function getMarketInfo(){
 	return response.json();
 }
 
-async function getProfit(firm, marketInfo) {
+async function calculateProfit(firm, marketInfo) {
 	let firmType = firm.type;
 	let recipe = firm.data?.recipe;
 	let firmInputs = firmData[firmType]?.inputs || firmData[firmType][recipe]?.inputs;
@@ -199,6 +206,24 @@ async function calculateAverageDividends(){
 	}
 
 	return totalDividends/allDividends.resp.tickHistory.length/100;
+}
+
+async function sortFirms(firms){
+	return firms.sort((a, b) => {
+		if (a.type < b.type) {
+			return -1;
+		} else if (a.type > b.type) {
+			return 1;
+		} else {
+			if (a.data?.recipe < b.data?.recipe) {
+				return -1;
+			} else if (a.data?.recipe > b.data?.recipe) {
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+	});
 }
 
 main();
