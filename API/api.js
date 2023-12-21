@@ -14,7 +14,6 @@ export async function get(url) {
 
 	const response = await fetch(url, requestOptions);
 
-
 	//handle error response
 	if (!response.ok) {
 		console.log('Error retrieving data, Cookie probably expired');
