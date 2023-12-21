@@ -122,12 +122,12 @@ async function toggleFirmStatus(firm, shouldProduce){
 		return;
 	}
 
-	await get(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=${shouldProduce}`);
+	await get(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=${shouldProduce ? 0 : 1}`);
 	console.log(firm.name + ' was turned ' + (shouldProduce ? 'on' : 'off'));
 }
 
 async function toggleFirmStockpilingStatus(firm, shouldStockpile, firmRecipe){
-	if (!firmRecipe || !!firm?.data?.hold == shouldStockpile){ //if firm recipe doesnt exist its because its a turbine, which doesnt produce anything you can stockpile
+	if (!firmRecipe || !!firm?.data?.hold == shouldStockpile){ 
 		// console.log(firm.name + ' stockpiling is already turned ' + (shouldStockpile ? 'on' : 'off'));
 		return;
 	}
