@@ -27,8 +27,8 @@ async function main(){
 		let shouldProduce = firm.profit > -2;
 		let shouldStockpile = !!firmRecipe && !!stockpilingControls[firmRecipe] && shouldProduce && firm.profit < 2;
 
-		await toggleFirmStatus(firm, shouldProduce);
-		await toggleFirmStockpilingStatus(firm, shouldStockpile, firmRecipe);
+		toggleFirmStatus(firm, shouldProduce);
+		toggleFirmStockpilingStatus(firm, shouldStockpile, firmRecipe);
 		totalProfitPerHour += shouldStockpile ? 0 : firm.profit;
 	}
 
