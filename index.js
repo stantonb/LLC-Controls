@@ -1,11 +1,11 @@
 import "dotenv/config.js";
 import firmData from "./firmData.json"  with { type: "json" };
 import stockpilingControls from "./stockPileControls.json"  with { type: "json" };
-
-let cookie = process.env.COOKIE;
+import { calculateAverageDividends, sortFirms } from "./Utils/helpers.js";
+import { get } from "./API/api.js";
 
 async function main(){
-	let walletInfo = await getWalletInfo();
+	let walletInfo = await get("https://llcgame.io/rpc/authaccounts/getWalletInfo?");
 	var totalProfitPerHour = 0;
 
 	if (!walletInfo) {
@@ -13,20 +13,30 @@ async function main(){
 		return;
 	}
 
-	let firms = await getProfitableFirms(walletInfo);
+	let firms = await calculateProfitableFirms(walletInfo);
 	
 	console.log("------------------------------------------")
 
 	for (let firm of firms.profitableFirms) {
-		totalProfitPerHour += firm.profit;
 		toggleFirmStatus(firm, 'opened');
 
-		//if stockpile is true then we want to set selling off
+		//if stockpile is true and profit is less than 2 then we want to set selling off
 		// else selling is not on already we want to turn it on
+
+		// if (stockpilingControls[firm.type]?.stockpile && firm.profit < 2) {
+		// 	toggleFirmSellingStatus(firm, 'off');
+		// } else {
+		// 	toggleFirmSellingStatus(firm, 'on');
+		// 	totalProfitPerHour += firm.profit;
+		// }
 	}
 
 	for (let firm of firms.unprofitableFirms) {
+		//if stockpile is true and profit is greater than -2 then we want to set selling off and turn firm on
+		//else toggle firm off
 		toggleFirmStatus(firm, 'closed');
+
+
 	}
 
 	console.log("------------------------------------------")
@@ -40,11 +50,11 @@ async function main(){
 	console.log("------------------------------------------")
 }
 
-async function getProfitableFirms(walletInfo){
+async function calculateProfitableFirms(walletInfo){
 	let firms = walletInfo?.resp?.firms.filter(firm => firm?.type !== undefined);
 	let profitableFirms = [];
 	let unprofitableFirms = [];
-	let marketInfo = await getMarketInfo();
+	let marketInfo = await get("https://llcgame.io/rpc/markets/getMarkets?");
 
 	if (!firms || firms.length == 0 || !marketInfo || marketInfo.length == 0) {
 		console.log('No firms or market info found');
@@ -73,42 +83,6 @@ async function getProfitableFirms(walletInfo){
 		profitableFirms: profitableFirms,
 		unprofitableFirms: unprofitableFirms
 	};
-}
-
-async function getWalletInfo(){
-	let myHeaders = new Headers();
-	myHeaders.append("Cookie", cookie);
-
-	let requestOptions = {
-		method: 'GET',
-		headers: myHeaders,
-		redirect: 'follow'
-	};
-
-	const response = await fetch("https://llcgame.io/rpc/authaccounts/getWalletInfo?", requestOptions);
-
-	//handle error response
-	if (!response.ok) {
-		console.log('Error getting wallet info, Cookie probably expired');
-		return null;
-	}
-
-	return response.json();
-}
-
-async function getMarketInfo(){
-	let myHeaders = new Headers();
-	myHeaders.append("Cookie", cookie);
-	
-	let requestOptions = {
-		method: 'GET',
-		headers: myHeaders,
-		redirect: 'follow'
-	};
-	
-	const response = await fetch("https://llcgame.io/rpc/markets/getMarkets?", requestOptions);
-
-	return response.json();
 }
 
 async function calculateProfit(firm, marketInfo) {
@@ -168,62 +142,10 @@ async function toggleFirmStatus(firm, status){
 		return;
 	}
 
-	let myHeaders = new Headers();
-	myHeaders.append("Cookie", cookie);
-
-	let requestOptions = {
-		method: 'GET',
-		headers: myHeaders,
-		redirect: 'follow'
-	};
-
-	const response = await fetch(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=${shouldClose}`, requestOptions);
+	const response = await get(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=${shouldClose}`);
 	
 	console.log(firm.name + ' was ' + status);
 	return response.json();
-}
-
-async function getDividends(){
-	let myHeaders = new Headers();
-	myHeaders.append("Cookie", cookie);
-
-	var requestOptions = {
-		method: 'GET',
-		redirect: 'follow'
-	};
-	
-	const response = await fetch("https://llcgame.io/rpc/markets/getMarketDetails?goodname=share_LQV", requestOptions)
-
-	return response.json();
-}
-
-async function calculateAverageDividends(){
-	let allDividends = await getDividends();
-	let totalDividends = 0;
-
-	for(let dividend of allDividends.resp.tickHistory){
-		totalDividends = totalDividends + (dividend?.data?.dividend ?? 0);
-	}
-
-	return totalDividends/allDividends.resp.tickHistory.length/100;
-}
-
-async function sortFirms(firms){
-	return firms.sort((a, b) => {
-		if (a.type < b.type) {
-			return -1;
-		} else if (a.type > b.type) {
-			return 1;
-		} else {
-			if (a.data?.recipe < b.data?.recipe) {
-				return -1;
-			} else if (a.data?.recipe > b.data?.recipe) {
-				return 1;
-			} else {
-				return 0;
-			}
-		}
-	});
 }
 
 main();
