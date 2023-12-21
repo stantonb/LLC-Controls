@@ -17,26 +17,30 @@ async function main(){
 	
 	console.log("------------------------------------------")
 
-	for (let firm of firms.profitableFirms) {
+	// for (let firm of firms.profitableFirms) {
+	// 	let firmRecipe = firm.data?.recipe;
+	// 	let shouldStockpile = stockpilingControls[firmRecipe] && firm.profit < 2;
+
+	// 	toggleFirmStatus(firm, 'opened');
+	// 	toggleFirmStockpilingStatus(firm, shouldStockpile, firmRecipe);
+	// 	totalProfitPerHour += shouldStockpile ? 0 : firm.profit;
+	// }
+
+	for (let firm of firms) {
 		let firmRecipe = firm.data?.recipe;
-		let shouldStockpile = stockpilingControls[firmRecipe] && firm.profit < 2;
+		let shouldProduce = firm.profit > -2;
+		let shouldStockpile = stockpilingControls[firmRecipe] && shouldProduce && firm.profit < 2;
 
-		toggleFirmStatus(firm, 'opened');
-		toggleFirmStockpilingStatus(firm, shouldStockpile, firmRecipe);
+		await toggleFirmStatus(firm, shouldProduce);
+		await toggleFirmStockpilingStatus(firm, shouldStockpile, firmRecipe);
 		totalProfitPerHour += shouldStockpile ? 0 : firm.profit;
-	}
-
-	for (let firm of firms.unprofitableFirms) {
 		//if stockpile is true and profit is greater than -2 then we want to set selling off and turn firm on
 		//else toggle firm off
+
 		// if (stockpilingControls[firm.type]?.stockpile && firm.profit > -2) {
 		// 	toggleFirmStockpilingStatus(firm);
 		// 	toggleFirmStatus(firm, 'opened');
 		// }
-
-		toggleFirmStatus(firm, 'closed');
-
-
 	}
 
 	console.log("------------------------------------------")
@@ -52,13 +56,13 @@ async function main(){
 
 async function calculateProfitableFirms(walletInfo){
 	let firms = walletInfo?.resp?.firms.filter(firm => firm?.type !== undefined);
-	let profitableFirms = [];
-	let unprofitableFirms = [];
+	// let profitableFirms = [];
+	// let unprofitableFirms = [];
 	let marketInfo = await get("https://llcgame.io/rpc/markets/getMarkets?");
 
 	if (!firms || firms.length == 0 || !marketInfo || marketInfo.length == 0) {
 		console.log('No firms or market info found');
-		return profitableFirms;
+		return [];
 	}
 
 	//sort by type then recipe
@@ -72,17 +76,18 @@ async function calculateProfitableFirms(walletInfo){
 
 		firm.profit = await calculateProfit(firm, marketInfo);
 
-		if (firm.profit > 0) {
-			profitableFirms.push(firm);
-		} else {
-			unprofitableFirms.push(firm);
-		}
+		// if (firm.profit > 0) {
+		// 	profitableFirms.push(firm);
+		// } else {
+		// 	unprofitableFirms.push(firm);
+		// }
 	}
 
-	return {
-		profitableFirms: profitableFirms,
-		unprofitableFirms: unprofitableFirms
-	};
+	// return {
+	// 	profitableFirms: profitableFirms,
+	// 	unprofitableFirms: unprofitableFirms
+	// };
+	return firms;
 }
 
 async function calculateProfit(firm, marketInfo) {
@@ -134,25 +139,27 @@ async function calculateProfit(firm, marketInfo) {
 	return firmProfit;
 }
 
-async function toggleFirmStatus(firm, status){
-	let shouldClose = status == 'closed' ? 1 : 0;
+async function toggleFirmStatus(firm, shouldProduce){
+	console.log(firm.name);
+	console.log(firm.closed);
+	console.log(shouldProduce);
 
-	if (firm.closed == shouldClose){
+	if (!firm.closed == shouldProduce){
 		// console.log(firm.name + ' is already ' + status);
 		return;
 	}
 
-	await get(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=${shouldClose}`);
-	console.log(firm.name + ' was ' + status);
+	// await get(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=${shouldProduce}`);
+	console.log(firm.name + ' was turned ' + (shouldProduce ? 'on' : 'off'));
 }
 
 async function toggleFirmStockpilingStatus(firm, shouldStockpile, firmRecipe){
-	if (!firmRecipe || !!firm?.data?.hold == shouldStockpile){
+	if (!firmRecipe || !!firm?.data?.hold == shouldStockpile){ //if firm recipe doesnt exist its because its a turbine, whihc doesnt produce anything you can stockpile
 		// console.log(firm.name + ' is already has stock piling set to ' + shouldStockpile);
 		return;
 	}
 
-	await get(`https://llcgame.io/rpc/authfirm/setHold?id=${firm.id}&hold=${shouldStockpile}`);
+	// await get(`https://llcgame.io/rpc/authfirm/setHold?id=${firm.id}&hold=${shouldStockpile}`);
 	console.log(firm.name + ' stockpiling was set to ' + (shouldStockpile ? 'on' : 'off'));
 }
 
