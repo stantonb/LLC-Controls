@@ -18,22 +18,22 @@ async function main(){
 	console.log("------------------------------------------")
 
 	for (let firm of firms.profitableFirms) {
+		let firmRecipe = firm.data?.recipe;
+		let shouldStockpile = stockpilingControls[firmRecipe] && firm.profit < 2;
+
 		toggleFirmStatus(firm, 'opened');
-
-		//if stockpile is true and profit is less than 2 then we want to set selling off
-		// else selling is not on already we want to turn it on
-
-		// if (stockpilingControls[firm.type]?.stockpile && firm.profit < 2) {
-		// 	toggleFirmSellingStatus(firm, 'off');
-		// } else {
-		// 	toggleFirmSellingStatus(firm, 'on');
-		// 	totalProfitPerHour += firm.profit;
-		// }
+		toggleFirmStockpilingStatus(firm, shouldStockpile, firmRecipe);
+		totalProfitPerHour += shouldStockpile ? 0 : firm.profit;
 	}
 
 	for (let firm of firms.unprofitableFirms) {
 		//if stockpile is true and profit is greater than -2 then we want to set selling off and turn firm on
 		//else toggle firm off
+		// if (stockpilingControls[firm.type]?.stockpile && firm.profit > -2) {
+		// 	toggleFirmStockpilingStatus(firm);
+		// 	toggleFirmStatus(firm, 'opened');
+		// }
+
 		toggleFirmStatus(firm, 'closed');
 
 
@@ -138,19 +138,25 @@ async function toggleFirmStatus(firm, status){
 	let shouldClose = status == 'closed' ? 1 : 0;
 
 	if (firm.closed == shouldClose){
-		console.log(firm.name + ' is already ' + status);
+		// console.log(firm.name + ' is already ' + status);
 		return;
 	}
 
-	const response = await get(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=${shouldClose}`);
-	
+	await get(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=${shouldClose}`);
 	console.log(firm.name + ' was ' + status);
-	return response.json();
+}
+
+async function toggleFirmStockpilingStatus(firm, shouldStockpile, firmRecipe){
+	if (!firmRecipe || !!firm?.data?.hold == shouldStockpile){
+		// console.log(firm.name + ' is already has stock piling set to ' + shouldStockpile);
+		return;
+	}
+
+	await get(`https://llcgame.io/rpc/authfirm/setHold?id=${firm.id}&hold=${shouldStockpile}`);
+	console.log(firm.name + ' stockpiling was set to ' + (shouldStockpile ? 'on' : 'off'));
 }
 
 main();
-
-
 
 // I want to check historical data for all resources
 // if profit is +ve right now I want to sell
