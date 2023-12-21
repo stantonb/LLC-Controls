@@ -17,26 +17,19 @@ async function main(){
 	
 	console.log("------------------------------------------")
 
-	for (let firm of firms.profitableFirms) {
-		let firmRecipe = firm.data?.recipe;
-		let shouldStockpile = stockpilingControls[firmRecipe] && firm.profit < 2;
+	for (let firm of firms) {
+		if (firm.type == 'supermarket') {
+			console.log('Skipping supermarket');
+			continue;
+		}
 
-		toggleFirmStatus(firm, 'opened');
+		let firmRecipe = firm.data?.recipe;
+		let shouldProduce = firm.profit > -2;
+		let shouldStockpile = !!firmRecipe && !!stockpilingControls[firmRecipe] && shouldProduce && firm.profit < 2;
+
+		toggleFirmStatus(firm, shouldProduce);
 		toggleFirmStockpilingStatus(firm, shouldStockpile, firmRecipe);
 		totalProfitPerHour += shouldStockpile ? 0 : firm.profit;
-	}
-
-	for (let firm of firms.unprofitableFirms) {
-		//if stockpile is true and profit is greater than -2 then we want to set selling off and turn firm on
-		//else toggle firm off
-		// if (stockpilingControls[firm.type]?.stockpile && firm.profit > -2) {
-		// 	toggleFirmStockpilingStatus(firm);
-		// 	toggleFirmStatus(firm, 'opened');
-		// }
-
-		toggleFirmStatus(firm, 'closed');
-
-
 	}
 
 	console.log("------------------------------------------")
@@ -52,37 +45,26 @@ async function main(){
 
 async function calculateProfitableFirms(walletInfo){
 	let firms = walletInfo?.resp?.firms.filter(firm => firm?.type !== undefined);
-	let profitableFirms = [];
-	let unprofitableFirms = [];
 	let marketInfo = await get("https://llcgame.io/rpc/markets/getMarkets?");
 
 	if (!firms || firms.length == 0 || !marketInfo || marketInfo.length == 0) {
 		console.log('No firms or market info found');
-		return profitableFirms;
+		return [];
 	}
 
 	//sort by type then recipe
 	firms = await sortFirms(firms);
 
 	for (let firm of firms) {
-		if(firm.type == 'supermarket') {
+		if (firm.type == 'supermarket') {
 			console.log('Skipping supermarket');
 			continue;
 		}
 
 		firm.profit = await calculateProfit(firm, marketInfo);
-
-		if (firm.profit > 0) {
-			profitableFirms.push(firm);
-		} else {
-			unprofitableFirms.push(firm);
-		}
 	}
 
-	return {
-		profitableFirms: profitableFirms,
-		unprofitableFirms: unprofitableFirms
-	};
+	return firms;
 }
 
 async function calculateProfit(firm, marketInfo) {
@@ -134,37 +116,28 @@ async function calculateProfit(firm, marketInfo) {
 	return firmProfit;
 }
 
-async function toggleFirmStatus(firm, status){
-	let shouldClose = status == 'closed' ? 1 : 0;
-
-	if (firm.closed == shouldClose){
-		// console.log(firm.name + ' is already ' + status);
+async function toggleFirmStatus(firm, shouldProduce){
+	if (!firm.closed == shouldProduce){
+		// console.log(firm.name + ' production is already turned ' + (shouldProduce ? 'on' : 'off'));
 		return;
 	}
 
-	await get(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=${shouldClose}`);
-	console.log(firm.name + ' was ' + status);
+	await get(`https://llcgame.io/rpc/authfirm/setClosed?id=${firm.id}&closed=${shouldProduce}`);
+	console.log(firm.name + ' was turned ' + (shouldProduce ? 'on' : 'off'));
 }
 
 async function toggleFirmStockpilingStatus(firm, shouldStockpile, firmRecipe){
-	if (!firmRecipe || !!firm?.data?.hold == shouldStockpile){
-		// console.log(firm.name + ' is already has stock piling set to ' + shouldStockpile);
+	if (!firmRecipe || !!firm?.data?.hold == shouldStockpile){ //if firm recipe doesnt exist its because its a turbine, which doesnt produce anything you can stockpile
+		// console.log(firm.name + ' stockpiling is already turned ' + (shouldStockpile ? 'on' : 'off'));
 		return;
 	}
 
-	await get(`https://llcgame.io/rpc/authfirm/setHold?id=${firm.id}&hold=${shouldStockpile}`);
+	await get(`https://llcgame.io/rpc/authfirm/setHold?id=${firm.id}&hold=${shouldStockpile ? 1 : 0}`);
 	console.log(firm.name + ' stockpiling was set to ' + (shouldStockpile ? 'on' : 'off'));
 }
 
 main();
 
-// I want to check historical data for all resources
-// if profit is +ve right now I want to sell
-// if profit is -ve I want to check if it within 5% of historical average
-	//if so I want to turn firm on but turn off selling
-	//if outside 5% I want to stop firm
-
-
 //TODO
 //apartments run at -ve profit most of the time but increase foot traffic to superMarkets, so need to check supermarket profit is > than total apartments -ve
-
+//figure out retail calculations
