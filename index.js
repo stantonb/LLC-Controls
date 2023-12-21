@@ -127,7 +127,7 @@ async function toggleFirmStatus(firm, shouldProduce){
 }
 
 async function toggleFirmStockpilingStatus(firm, shouldStockpile, firmRecipe){
-	if (!firmRecipe || !!firm?.data?.hold == shouldStockpile){ //if firm recipe doesnt exist its because its a turbine, whihc doesnt produce anything you can stockpile
+	if (!firmRecipe || !!firm?.data?.hold == shouldStockpile){ //if firm recipe doesnt exist its because its a turbine, which doesnt produce anything you can stockpile
 		// console.log(firm.name + ' stockpiling is already turned ' + (shouldStockpile ? 'on' : 'off'));
 		return;
 	}
@@ -138,13 +138,6 @@ async function toggleFirmStockpilingStatus(firm, shouldStockpile, firmRecipe){
 
 main();
 
-// I want to check historical data for all resources
-// if profit is +ve right now I want to sell
-// if profit is -ve I want to check if it within 5% of historical average
-	//if so I want to turn firm on but turn off selling
-	//if outside 5% I want to stop firm
-
-
 //TODO
 //apartments run at -ve profit most of the time but increase foot traffic to superMarkets, so need to check supermarket profit is > than total apartments -ve
-
+//figure out retail calculations
