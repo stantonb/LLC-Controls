@@ -17,3 +17,11 @@ npm install
 npm start
 
 All future runs just require npm start
+
+CrontTab
+To run this script every hour at 5 minutes past, add the following to your crontab:
+```
+PATH={insert your path here}
+05 * * * * cd {insert relative here}/Projects.Git/LLC-Controls/ && {npm location here} run start >>/tmp/crontab.log 2>&1
+```
+
